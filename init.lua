@@ -5,11 +5,14 @@
 local mod_storage = minetest.get_mod_storage()
 local ip = minetest.get_server_info().ip
 local port = minetest.get_server_info().port
+local variable = false
+local timer = 0
 local dig = ip .."-".. port .."_dig"
 local place = ip .."-".. port .."_place"
 local chat = ip .."-".. port .."_chat"
 local death = ip .."-".. port .."_death"
 local connect = ip .."-".. port .."_connect"
+local time = ip .."-".. port .."_time"
 
 if mod_storage:get_int(dig) == nil then
   mod_storage:set_int(dig, 0)
@@ -31,6 +34,9 @@ if mod_storage:get_int(connect) == nil then
   mod_storage:set_int(connect, 0)
 end
 
+if mod_storage:get_int(time) == nil then
+  mod_storage:set_int(time, 0)
+end
 
 minetest.register_on_dignode(function(pos, node)
     local number = mod_storage:get_int(dig)
@@ -53,9 +59,21 @@ minetest.register_on_death(function()
   end)
 
 minetest.register_on_connect(function()
+    variable = true
     local number = mod_storage:get_int(connect)
     mod_storage:set_int(connect, number + 1)
   end)
+
+minetest.register_globalstep(function(dtime)
+    if variable then
+    timer = timer + dtime
+    if timer > 59 then
+      timer = 0
+      local number = mod_storage:get_int(time)
+      mod_storage:set_int(time, number + 1)
+    end
+  end
+end)
 
 minetest.register_chatcommand("counter", {
     description = "Show your stats",
@@ -65,15 +83,27 @@ minetest.register_chatcommand("counter", {
       local number_chat = mod_storage:get_int(chat)
       local number_death = mod_storage:get_int(death)
       local number_connect = mod_storage:get_int(connect)
+      local number_timer = mod_storage:get_int(time)
+      local number_time = 0
+      if number_timer > 1439 then
+        local day_counter = number_timer / 1440
+        number_time = day_counter .." days"
+      elseif number_timer > 59 then
+        local hour_counter = number_timer / 60
+        number_time = hour_counter .." hours"
+      else
+        number_time = number_timer .." minutes"
+      end
       minetest.show_formspec("counter:count",
-        "size[1.9,2.7]" ..
+        "size[1.9,3]" ..
         "label[0.65,0;Stats]" ..
         "label[0.2,0.2;On this server you ...]"..
-        "label[0,0.6;... dug ".. number_dig .." blocks.]" ..
+        "label[0,0.6;... digged ".. number_dig .." blocks.]" ..
         "label[0,0.9;... placed ".. number_place .." blocks.]" ..
-        "label[0,1.2;... sent ".. number_chat .." chat messages.]" ..
+        "label[0,1.2;... send ".. number_chat .." chat messages.]" ..
         "label[0,1.5;... died ".. number_death .." times.]" ..
-        "label[0,1.8;... connected ".. number_connect .." times.]" ..
-        "button_exit[0.5,2.6;0.9,0.1;e;Exit]")
+        "label[0,1.8;... connect ".. number_connect .." times.]" ..
+        "label[0,2.1;... played ".. number_time ..".]" ..
+        "button_exit[0.5,2.9;0.9,0.1;e;Exit]")
   end})
 
