@@ -87,10 +87,10 @@ minetest.register_chatcommand("counter", {
       local number_time = 0
       if number_timer > 1439 then
         local day_counter = number_timer / 1440
-        number_time = day_counter .." days"
+        number_time = math.floor(day_counter * 100)/100 .." days"
       elseif number_timer > 59 then
         local hour_counter = number_timer / 60
-        number_time = hour_counter .." hours"
+        number_time = math.floor(hour_counter * 100)/100 .." hours"
       else
         number_time = number_timer .." minutes"
       end
@@ -106,4 +106,6 @@ minetest.register_chatcommand("counter", {
         "label[0,2.1;... played ".. number_time ..".]" ..
         "button_exit[0.5,2.9;0.9,0.1;e;Exit]")
   end})
+
+
 
