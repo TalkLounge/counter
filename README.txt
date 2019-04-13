@@ -4,11 +4,11 @@
 
 Minetest Client Mod 'counter'
 ==================
-Version 1.2
+Version 1.3
 
 License of source code:
 ---------------------------------
-Copyright (C) 2017 TalkLounge <talklounge@yahoo.de>
+Copyright (C) 2019 TalkLounge <talklounge@yahoo.de>
 
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or(at your option) any later version.
 
