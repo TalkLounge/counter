@@ -41,28 +41,35 @@ end
 minetest.register_on_dignode(function(pos, node)
     local number = mod_storage:get_int(dig)
     mod_storage:set_int(dig, number + 1)
-  end)
+end)
 
 minetest.register_on_placenode(function(pointed_thing, node)
     local number = mod_storage:get_int(place)
     mod_storage:set_int(place, number + 1)
-  end)
+end)
 
-minetest.register_on_sending_chat_messages(function(message)
-    local number = mod_storage:get_int(chat)
-    mod_storage:set_int(chat, number + 1)
-  end)
+if type(minetest.register_on_sending_chat_messages) == "function" then
+	minetest.register_on_sending_chat_messages(function(message)
+			local number = mod_storage:get_int(chat)
+			mod_storage:set_int(chat, number + 1)
+		end)
+else
+	minetest.register_on_sending_chat_message(function(message)
+			local number = mod_storage:get_int(chat)
+			mod_storage:set_int(chat, number + 1)
+	end)
+end
 
 minetest.register_on_death(function()
     local number = mod_storage:get_int(death)
     mod_storage:set_int(death, number + 1)
-  end)
+end)
 
 minetest.register_on_connect(function()
     variable = true
     local number = mod_storage:get_int(connect)
     mod_storage:set_int(connect, number + 1)
-  end)
+end)
 
 minetest.register_globalstep(function(dtime)
     if variable then
@@ -105,7 +112,5 @@ minetest.register_chatcommand("counter", {
         "label[0,1.8;... connect ".. number_connect .." times.]" ..
         "label[0,2.1;... played ".. number_time ..".]" ..
         "button_exit[0.5,2.9;0.9,0.1;e;Exit]")
-  end})
-
-
+end})
 
