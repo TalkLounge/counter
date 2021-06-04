@@ -65,7 +65,7 @@ minetest.register_on_death(function()
     mod_storage:set_int(death, number + 1)
 end)
 
-minetest.register_on_connect(function()
+minetest.after(5, function()
     variable = true
     local number = mod_storage:get_int(connect)
     mod_storage:set_int(connect, number + 1)
