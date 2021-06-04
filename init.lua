@@ -105,12 +105,12 @@ minetest.register_chatcommand("counter", {
         "size[1.9,3]" ..
         "label[0.65,0;Stats]" ..
         "label[0.2,0.2;On this server you ...]"..
-        "label[0,0.6;... digged ".. number_dig .." blocks.]" ..
+        "label[0,0.6;... dug ".. number_dig .." blocks.]" ..
         "label[0,0.9;... placed ".. number_place .." blocks.]" ..
-        "label[0,1.2;... send ".. number_chat .." chat messages.]" ..
+        "label[0,1.2;... sent ".. number_chat .." chat messages.]" ..
         "label[0,1.5;... died ".. number_death .." times.]" ..
-        "label[0,1.8;... connect ".. number_connect .." times.]" ..
-        "label[0,2.1;... played ".. number_time ..".]" ..
+        "label[0,1.8;... connected ".. number_connect .." times.]" ..
+        "label[0,2.1;... played for ".. number_time ..".]" ..
         "button_exit[0.5,2.9;0.9,0.1;e;Exit]")
 end})
 
