@@ -1,116 +1,93 @@
 -- clientmods/counter/init.lua
 -- =================
--- See README.txt for licensing and other information.
+-- See README.md for licensing and other information.
 
 local mod_storage = minetest.get_mod_storage()
 local ip = minetest.get_server_info().ip
 local port = minetest.get_server_info().port
-local variable = false
 local timer = 0
-local dig = ip .."-".. port .."_dig"
-local place = ip .."-".. port .."_place"
-local chat = ip .."-".. port .."_chat"
-local death = ip .."-".. port .."_death"
-local connect = ip .."-".. port .."_connect"
-local time = ip .."-".. port .."_time"
 
-if mod_storage:get_int(dig) == nil then
-  mod_storage:set_int(dig, 0)
+local function get_id(action)
+	if ip == "localhost" or ip == "127.0.0.1" or ip == "0:0:0:0:0:0:0:0" then
+		return "singleplayer_".. action
+	end
+	return ip .."-".. port .."_".. action
 end
 
-if mod_storage:get_int(place) == nil then
-  mod_storage:set_int(place, 0)
+local function get_action(action)
+	return mod_storage:get_int(get_id(action)) or 0
 end
 
-if mod_storage:get_int(chat) == nil then
-  mod_storage:set_int(chat, 0)
-end
-
-if mod_storage:get_int(death) == nil then
-  mod_storage:set_int(death, 0)
-end
-
-if mod_storage:get_int(connect) == nil then
-  mod_storage:set_int(connect, 0)
-end
-
-if mod_storage:get_int(time) == nil then
-  mod_storage:set_int(time, 0)
+local function increase_count(action)
+	local count = get_action(action)
+	count = count + 1
+	mod_storage:set_int(get_id(action), count)
 end
 
 minetest.register_on_dignode(function(pos, node)
-    local number = mod_storage:get_int(dig)
-    mod_storage:set_int(dig, number + 1)
+		increase_count("dig")
 end)
 
 minetest.register_on_placenode(function(pointed_thing, node)
-    local number = mod_storage:get_int(place)
-    mod_storage:set_int(place, number + 1)
+    increase_count("place")
 end)
 
 if type(minetest.register_on_sending_chat_messages) == "function" then
 	minetest.register_on_sending_chat_messages(function(message)
-			local number = mod_storage:get_int(chat)
-			mod_storage:set_int(chat, number + 1)
+			increase_count("chat")
 		end)
 else
 	minetest.register_on_sending_chat_message(function(message)
-			local number = mod_storage:get_int(chat)
-			mod_storage:set_int(chat, number + 1)
+			increase_count("chat")
 	end)
 end
 
 minetest.register_on_death(function()
-    local number = mod_storage:get_int(death)
-    mod_storage:set_int(death, number + 1)
+    increase_count("death")
 end)
 
-minetest.after(5, function()
-    variable = true
-    local number = mod_storage:get_int(connect)
-    mod_storage:set_int(connect, number + 1)
-end)
+local function on_connected()
+	if not minetest.localplayer then
+		return minetest.after(0, on_connected)
+	end
+	increase_count("connect")
+end
+
+on_connected()
 
 minetest.register_globalstep(function(dtime)
-    if variable then
-    timer = timer + dtime
-    if timer > 59 then
-      timer = 0
-      local number = mod_storage:get_int(time)
-      mod_storage:set_int(time, number + 1)
-    end
-  end
+    if minetest.localplayer then
+			timer = timer + dtime
+			if timer >= 60 then
+				timer = 0
+				increase_count("time")
+			end
+		end
 end)
 
 minetest.register_chatcommand("counter", {
     description = "Show your stats",
     func = function()
-      local number_dig = mod_storage:get_int(dig)
-      local number_place = mod_storage:get_int(place)
-      local number_chat = mod_storage:get_int(chat)
-      local number_death = mod_storage:get_int(death)
-      local number_connect = mod_storage:get_int(connect)
-      local number_timer = mod_storage:get_int(time)
-      local number_time = 0
-      if number_timer > 1439 then
-        local day_counter = number_timer / 1440
-        number_time = math.floor(day_counter * 100)/100 .." days"
-      elseif number_timer > 59 then
-        local hour_counter = number_timer / 60
-        number_time = math.floor(hour_counter * 100)/100 .." hours"
+      local time_count = get_action("time")
+			
+      if time_count >= 1440 then
+        time_count = math.floor((time_count / 1440) * 100)/100 .." days"
+      elseif time_count >= 60 then
+        time_count = math.floor((time_count / 60) * 100)/100 .." hours"
       else
-        number_time = number_timer .." minutes"
+        time_count = time_count .." minutes"
       end
+			
       minetest.show_formspec("counter:count",
         "size[1.9,3]" ..
         "label[0.65,0;Stats]" ..
         "label[0.2,0.2;On this server you ..]"..
-        "label[0,0.6;.. dug ".. number_dig .." blocks.]" ..
-        "label[0,0.9;.. placed ".. number_place .." blocks.]" ..
-        "label[0,1.2;.. sent ".. number_chat .." chat messages.]" ..
-        "label[0,1.5;.. died ".. number_death .." times.]" ..
-        "label[0,1.8;.. connected ".. number_connect .." times.]" ..
-        "label[0,2.1;.. played for ".. number_time ..".]" ..
+        "label[0,0.6;.. dug ".. get_action("dig") .." blocks.]" ..
+        "label[0,0.9;.. placed ".. get_action("place") .." blocks.]" ..
+        "label[0,1.2;.. sent ".. get_action("chat") .." chat messages.]" ..
+        "label[0,1.5;.. died ".. get_action("death") .." times.]" ..
+        "label[0,1.8;.. connected ".. get_action("connect") .." times.]" ..
+        "label[0,2.1;.. played for ".. time_count ..".]" ..
         "button_exit[0.5,2.9;0.9,0.1;e;Exit]")
 end})
 

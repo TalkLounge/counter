@@ -1,5 +1,1 @@
--- clientmods/counter/description.txt
--- =================
--- See README.txt for licensing and other information.
-
-This client-side mod adds a counter of some of your ingame doings per server.
+This minetest client-side mod counts various ingame actions on servers and in singleplayer
