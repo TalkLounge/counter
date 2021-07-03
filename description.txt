@@ -2,4 +2,4 @@
 -- =================
 -- See README.txt for licensing and other information.
 
-This mod adds an counter.
+This client-side mod adds a counter of some of your ingame doings per server.

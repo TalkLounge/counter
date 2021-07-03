@@ -4,7 +4,7 @@
 
 Minetest Client Mod 'counter'
 ==================
-Version 1.3
+Version 1.4
 
 License of source code:
 ---------------------------------
